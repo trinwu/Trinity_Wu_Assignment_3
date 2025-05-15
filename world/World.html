@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ASG 3 - Blocky World</title>
+  <!-- Load Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Load External Libraries -->
+  <script src="../lib/cuon-matrix-cse160.js"></script>
+  <script src="../lib/cuon-utils.js"></script>
+  <script src="../lib/webgl-debug.js"></script>
+  <script src="../lib/webgl-utils.js"></script>
+  <!-- Load Scripts -->
+  <script src="Camera.js"></script>
+  <script src="Triangle.js"></script>
+  <script src="Cube.js"></script>
+  <script src="BlockyAnimal.js"></script>
+  <script src="World.js"></script>
+  <script src="dome.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 20px;
+      background-color: #f7f9fb;
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    button, input[type=range] {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    #controls {
+      margin-top: 20px;
+    }
+    .control-section {
+      margin: 15px 0;
+    }
+    .block-btn {
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      border: 2px solid #ccc;
+      cursor: pointer;
+      text-align: center;
+      line-height: 40px;
+      font-size: 18px;
+      background-color: #eee;
+    }
+    .block-btn.selected {
+      border-color: #ff5722;
+      background-color: #ffe0d5;
+    }
+    #info-panel {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #e9f5ff;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    #key-controls {
+      margin-top: 20px;
+    }
+    .key {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 3px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .slider-container {
+      margin: 15px 0;
+    }
+    .slider-container label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .slider-value {
+      font-weight: bold;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body onload="main()">
+  <h1>ASG3 - Blocky World</h1>
+  <canvas id="webgl" width="600" height="400">
+    Please use a browser that supports the <code>&lt;canvas&gt;</code> element.
+  </canvas>
+  <p id="numdot">Performance Info: XXX</p>
+  <p id="instructions">Use WASD to move, QE to rotate</p>
+  
+  <div id="controls">
+    <h2>Controls</h2>
+    <button type="button" id="resetButton">Reset Scene</button>
+    
+    <div class="control-section">
+      <h3>Block Tools</h3>
+      <div>
+        <button type="button" class="block-btn" id="block1">1</button>
+        <button type="button" class="block-btn" id="block2">2</button>
+        <button type="button" class="block-btn" id="block3">3</button>
+        <button type="button" class="block-btn" id="block4">4</button>
+      </div>
+      <p>Space to add block, X to remove block</p>
+    </div>
+    
+    <!-- Added Render Distance Slider -->
+    <div class="control-section">
+      <h3>Performance</h3>
+      <div class="slider-container">
+        <label for="renderDistance">Render Distance: <span id="renderDistanceValue" class="slider-value">20</span></label>
+        <input type="range" id="renderDistance" min="5" max="32" value="20" 
+              oninput="document.getElementById('renderDistanceValue').textContent=this.value;">
+        <p>Lower values improve performance</p>
+      </div>
+    </div>
+    
+    <div class="control-section">
+      <h3>Animation</h3>
+      <button type="button" id="animationOnButton">Enable Animation</button>
+      <button type="button" id="animationOffButton">Disable Animation</button>
+    </div>
+    
+    <div id="key-controls">
+      <h3>Keyboard Controls</h3>
+      <div>
+        <span class="key">W</span> Move Forward
+        <span class="key">S</span> Move Backward
+        <span class="key">A</span> Move Left
+        <span class="key">D</span> Move Right
+      </div>
+      <div>
+        <span class="key">Q</span> Turn Left
+        <span class="key">E</span> Turn Right
+        <span class="key">Space</span> Add Block
+        <span class="key">X</span> Remove Block
+      </div>
+      <div>
+        <p>You can also use the mouse to look around by clicking and dragging</p>
+      </div>
+    </div>
+    
+    <div id="info-panel">
+      <h3>How to Play</h3>
+      <p>Explore the 3D world, add and remove blocks to create structures. Navigate using WASD keys and look around with the mouse. Choose block types (1-4) to build with different heights.</p>
+      <p>Watch the parent animal take care of its baby animals! When animation is enabled, they'll move around together.</p>
+    </div>
+  </div>
+</body>
+</html>

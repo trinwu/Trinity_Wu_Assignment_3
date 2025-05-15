@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ASG 2 - Jellyfish Animation</title>
+
+  <!-- Load fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Load scripts -->
+  <script src="BlockyAnimal.js"></script>
+  <script src="geometry.js"></script>
+  <script src="triangle.js"></script>
+  <script src="cube.js"></script>
+  <script src="dome.js"></script>
+
+  <!-- Load external libraries -->
+  <script src="../lib/cuon-matrix-cse160.js"></script>
+  <script src="../lib/cuon-utils.js"></script>
+  <script src="../lib/webgl-debug.js"></script>
+  <script src="../lib/webgl-utils.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 20px;
+      background-color: #f7f9fb;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #container {
+      display: flex;
+      gap: 30px;
+    }
+    #webgl {
+    width: 400px;
+    height: 400px;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+    }
+    #sidebar {
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #instructions, #controls {
+      background: #ffffff;
+      padding: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      margin: 4px 4px 10px 0;
+      padding: 6px 12px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+    }
+    .slider {
+      width: 100%;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+    #tentacleControls {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
+      padding: 8px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    summary {
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body onload="main()">
+  <h1>Jellyfish Animation</h1>
+
+  <div id="container">
+    <canvas id="webgl" width="400" height="400">
+      Please use a browser that supports the <code>&lt;canvas&gt;</code> element.
+    </canvas>
+
+    <div id="sidebar">
+      <div id="instructions">
+        <h2>Instructions</h2>
+        <ul>
+          <li><strong>Rotate:</strong> Click and drag on the canvas to rotate the jellyfish (trackball rotation).</li>
+          <li><strong>Poke:</strong> Hold <strong>Shift</strong> and click on the canvas to make the jellyfish cry (poke animation).</li>
+          <li><strong>Adjust:</strong> Use sliders to control the body angle and tentacle joints individually.</li>
+        </ul>
+      </div>
+
+      <div id="controls">
+        <h2>Controls</h2>
+        <p id="numdot">Performance: --</p>
+
+        <p>
+          <button type="button" id="resetButton">Reset</button>
+        </p>
+
+        <p>
+          Animation:
+          <button type="button" id="animationOnButton">Start</button>
+          <button type="button" id="animationOffButton">Stop</button>
+        </p>
+
+        <p>
+          Body Angle:
+          <input type="range" id="bodyAngleSlider" min="-45" max="45" value="0" class="slider">
+        </p>
+
+        <p>
+          Camera Angle:
+          <input type="range" min="0" max="360" value="180" class="slider" id="angleSlide">
+        </p>
+        <!-- Magenta <input type="range" min="-45" max="45" value="0" class="slider" id="magentaSlide">
+        <p>
+        Animation: 
+        <button type="button" id="animationMagentaOnButton">ON</button>
+        <button type="button" id="animationMagentaOffButton">OFF</button>
+        <p>
+        <p>
+        Yellow <input type="range" min="-45" max="45" value="0" class="slider" id="yellowSlide">
+        <p>
+        Animation: 
+        <button type="button" id="animationYellowOnButton">ON</button>
+        <button type="button" id="animationYellowOffButton">OFF</button>
+        <p> -->
+
+        <h3>Tentacle Joints</h3>
+        <div id="tentacleControls"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
