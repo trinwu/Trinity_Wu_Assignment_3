@@ -74,7 +74,6 @@ let g_babyAnimals = [
     { x: 10, y: 0, z: 12, rotY: 0, targetX: 0, targetZ: 0, followDelay: 0.6 }
 ];
 
-// Optimization: We'll store a simplified version of visible blocks
 let g_visibleBlocks = [];
 
 function setupWebGL(){
@@ -195,11 +194,10 @@ let g_lastMouseY = 0;
 // 1-4: Block with height 1-4
 let g_worldMap = createInitialWorldMap();
 
-// Optimization: fog distance for culling
-let g_renderDistance = 20; // How far blocks are rendered
+let g_renderDistance = 20; 
 
 function createInitialWorldMap() {
-    // Create a 32x32 world map initialized with zeros
+    // Create a 32x32 world map
     let map = new Array(32);
     for (let i = 0; i < 32; i++) {
         map[i] = new Array(32).fill(0);
@@ -213,13 +211,13 @@ function createInitialWorldMap() {
         map[i][31] = 4; // Right wall
     }
     
-    // Add some inner walls and structures with different heights
+    // Add inner walls and structures with different heights
     for (let i = 5; i < 10; i++) {
         map[i][10] = 2; // Height 2 wall
     }
     
     for (let i = 15; i < 20; i++) {
-        map[10][i] = 3; // Height 3 wall
+        map[10][i] = 3; 
     }
     
     // Add a small building
@@ -237,7 +235,7 @@ function createInitialWorldMap() {
     map[16][15] = 4;
     map[16][16] = 4;
     
-    // Add a little playground area for the parent and baby animals
+    // Add a playground area for parent and baby animals
     for (let i = 8; i < 13; i++) {
         for (let j = 8; j < 13; j++) {
             if (i === 8 || i === 12 || j === 8 || j === 12) {
@@ -288,7 +286,6 @@ function addActionsForHtmlUI(){
         updateBlockButtons();
     };
     
-    // We need to check if the element exists first
     const renderDistanceSlider = document.getElementById('renderDistance');
     if (renderDistanceSlider) {
         renderDistanceSlider.onchange = function() {
@@ -318,7 +315,7 @@ function addActionsForHtmlUI(){
         
         // Rotate camera based on mouse movement
         if (dx !== 0) {
-            g_camera.pan(-dx * 0.5); // Negate to match expected direction
+            g_camera.pan(-dx * 0.5); 
         }
         
         g_lastMouseX = newX;
@@ -327,18 +324,15 @@ function addActionsForHtmlUI(){
         renderAllShapes();
     };
 
-    // Initial setup for block buttons
     updateBlockButtons();
 }
 
 function updateBlockButtons() {
-    // First remove the 'selected' class from all buttons
     const buttons = document.getElementsByClassName('block-btn');
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].classList.remove('selected');
     }
-    
-    // Add 'selected' class to the currently selected block button
+
     const selectedButton = document.getElementById('block' + g_selectedBlock);
     if (selectedButton) {
         selectedButton.classList.add('selected');
@@ -424,7 +418,6 @@ function drawBlockyAnimal(animal, isParent) {
         // Rotate the animal
         animalModel.matrix.rotate(animal.rotY, 0, 1, 0);
         
-        // Scale the animal appropriately - babies are smaller
         if (isParent) {
             animalModel.matrix.scale(0.5, 0.5, 0.5);
         } else {
@@ -472,14 +465,12 @@ function main() {
         }
     });
 
-    // Pre-calculate visible blocks
     updateVisibleBlocks();
 
     // Start the animation loop
     requestAnimationFrame(tick);
 }
 
-// Optimization: Pre-calculate which blocks should be visible
 function updateVisibleBlocks() {
     g_visibleBlocks = [];
     
@@ -498,8 +489,6 @@ function updateVisibleBlocks() {
                 
                 // Only include blocks within render distance
                 if (distSquared <= g_renderDistance * g_renderDistance) {
-                    // Perform frustum culling (simplified)
-                    // For now, just store blocks within range
                     for (let y = 0; y < height; y++) {
                         g_visibleBlocks.push({x, y, z});
                     }
@@ -509,67 +498,56 @@ function updateVisibleBlocks() {
     }
 }
 
-// Called by browser repeatedly whenever it's time
 function tick() {
     // Save the current time
     g_seconds = performance.now()/1000.0-g_startTime;
 
     // Update animation if enabled
     if (g_animate) {
-        // Move the parent animal in a figure-8 pattern
         const t = g_seconds * 0.5;
         g_parentAnimal.x = 10 + Math.sin(t) * 1.5;
         g_parentAnimal.z = 10 + Math.sin(t * 2) * 1.5;
         g_parentAnimal.rotY = (Math.atan2(Math.sin(t * 2) * 3 * Math.cos(t), Math.cos(t) * 1.5) * 180 / Math.PI) + 90;
         
-        // Store the parent's previous positions to create a trail for babies to follow
         const positions = [
             {x: g_parentAnimal.x, z: g_parentAnimal.z},
             {x: g_parentAnimal.x, z: g_parentAnimal.z},
             {x: g_parentAnimal.x, z: g_parentAnimal.z}
         ];
         
-        // Update each baby animal to follow the parent with delay
         for (let i = 0; i < g_babyAnimals.length; i++) {
             const baby = g_babyAnimals[i];
             
-            // Calculate target position with delay
             const delayedTime = Math.max(0, t - baby.followDelay);
             baby.targetX = 10 + Math.sin(delayedTime) * 1.5;
             baby.targetZ = 10 + Math.sin(delayedTime * 2) * 1.5;
             
-            // Smoothly move toward target
             baby.x += (baby.targetX - baby.x) * 0.1;
             baby.z += (baby.targetZ - baby.z) * 0.1;
-            
-            // Calculate rotation to face direction of movement
+ 
             const dx = baby.targetX - baby.x;
             const dz = baby.targetZ - baby.z;
             if (Math.abs(dx) > 0.01 || Math.abs(dz) > 0.01) {
                 const targetAngle = Math.atan2(dz, dx) * 180 / Math.PI;
-                // Smoothly rotate toward target angle
+
                 const angleDiff = targetAngle - baby.rotY;
                 baby.rotY += angleDiff * 0.1;
             }
         }
-        
-        // Update the set of visible blocks (only sometimes, not every frame)
+
         if (Math.random() < 0.1) {
             updateVisibleBlocks();
         }
     }
 
-    // Draw everything
     renderAllShapes();
 
-    // Tell the browser to update again when it has time
     requestAnimationFrame(tick);
 }
 
 function keydown(ev) {
     const key = ev.key.toLowerCase();
     
-    // Prevent default for spacebar to avoid page scrolling
     if (key === ' ') {
         ev.preventDefault();
     }
@@ -579,7 +557,7 @@ function keydown(ev) {
             g_camera.moveForward();
             break;
         case 's':
-            g_camera.moveBackwards(); // Using the correct method name
+            g_camera.moveBackwards(); 
             break;
         case 'a':
             g_camera.moveLeft();
@@ -617,25 +595,20 @@ function keydown(ev) {
             break;
     }
     
-    // After movement, update visible blocks
     updateVisibleBlocks();
     renderAllShapes();
 }
 
 function getBlockInFront() {
-    // Get direction vector from eye to at
     let direction = new Vector3().set(g_camera.at).sub(g_camera.eye).normalize();
-    
-    // Calculate position 3 units in front of camera
+
     let targetPos = new Vector3().set(g_camera.eye);
     direction.mul(3); // Scale to 3 units
     targetPos.add(direction);
-    
-    // Convert to world coordinates (offset by 16 to center the map)
+
     const worldX = Math.floor(targetPos.elements[0] + 16);
     const worldZ = Math.floor(targetPos.elements[2] + 16);
-    
-    // Check if within world bounds
+
     if (worldX >= 0 && worldX < 32 && worldZ >= 0 && worldZ < 32) {
         return { x: worldX, z: worldZ };
     }
@@ -650,11 +623,9 @@ function addBlockInFront() {
     if (blockPos) {
         g_worldMap[blockPos.x][blockPos.z] = g_selectedBlock;
         
-        // Add cooldown to prevent rapid placement
         g_canAddBlock = false;
         setTimeout(() => { g_canAddBlock = true; }, 250);
         
-        // Update visible blocks after adding a block
         updateVisibleBlocks();
     }
 }
@@ -666,16 +637,13 @@ function removeBlockInFront() {
     if (blockPos && g_worldMap[blockPos.x][blockPos.z] > 0) {
         g_worldMap[blockPos.x][blockPos.z] = 0;
         
-        // Add cooldown to prevent rapid removal
         g_canRemoveBlock = false;
         setTimeout(() => { g_canRemoveBlock = true; }, 250);
         
-        // Update visible blocks after removing a block
         updateVisibleBlocks();
     }
 }
 
-// Draw every shape that is supposed to be in the canvas
 function renderAllShapes(){
     // Check the time at the start of this function
     var startTime = performance.now();
@@ -708,7 +676,7 @@ function renderAllShapes(){
     sky.matrix.translate(-0.5, -0.5, -0.5);
     sky.render();
 
-    // Draw the world blocks - optimization: only draw visible blocks
+    // Draw the world blocks 
     drawWorldBlocks();
 
     // Draw the parent animal
@@ -727,9 +695,7 @@ function renderAllShapes(){
     sendTextToHTML(" ms: " + Math.floor(duration) + " fps: " + Math.floor(10000/duration)/10, "numdot");
 }
 
-// Optimized world block drawing
 function drawWorldBlocks() {
-    // Only draw blocks that are likely to be visible
     for (const block of g_visibleBlocks) {
         var cube = new Cube();
         cube.color = [1.0, 1.0, 1.0, 1.0];
